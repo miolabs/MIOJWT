@@ -7,11 +7,11 @@
 
 public struct JWTHeader: Codable
 {
+    let kid:String?
     let alg:String
-    let typ:String
-    let kid:String
+    let typ:String    
     
-    init(kid: String, alg:String, typ:String) {
+    init( kid: String?, alg:String, typ:String ) {
         self.kid = kid
         self.alg = alg
         self.typ = typ

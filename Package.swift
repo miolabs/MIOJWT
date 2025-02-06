@@ -22,7 +22,10 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "MIOJWT",
-            dependencies: [ .product(name: "Crypto", package: "swift-crypto") ]
+            dependencies: [
+                .product( name: "Crypto", package: "swift-crypto" ),
+                .product( name: "_CryptoExtras", package: "swift-crypto" ),
+            ]
         ),
         .testTarget(
             name: "MIOJWTTests",

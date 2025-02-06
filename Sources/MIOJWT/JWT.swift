@@ -8,17 +8,16 @@
 import Foundation
 import Crypto
 
-
-final class JWT
+public final class JWT
 {
-    static let separation:UInt8 = Character(".").asciiValue!
+    static let separation = UInt8.period
     
-    static func sign( kid: String, claims: JWTClaims, signer: JWTSigner ) throws -> String {
+    public static func sign( kid: String? = nil, claims: JWTClaims, signer: JWTSigner ) throws -> String {
         let header = signer.newHeader( kid: kid )
         return try sign(header: header, claims: claims, signer: signer)
     }
     
-    static func sign( header: JWTHeader, claims: JWTClaims, signer: JWTSigner ) throws -> String
+    public static func sign( header: JWTHeader, claims: JWTClaims, signer: JWTSigner ) throws -> String
     {
         let header_data = try JSONEncoder().encode( header )
         let header_base64 = header_data.base64URLDecodedBytes()
@@ -31,10 +30,9 @@ final class JWT
         let signature = try signer.sign(payload: Data(input))
         let bytes = input + [JWT.separation] + signature.base64URLDecodedBytes()
         return String(decoding: bytes, as: UTF8.self)
-        
     }
     
-    static func verify<T:JWTClaims>( token: String, verifier: JWTSigner ) throws -> T
+    public static func verify<T:JWTClaims>( token: String, verifier: JWTSigner ) throws -> T
     {
         let bytes = [UInt8](token.utf8)
         let parts = bytes.split(separator: separation)
@@ -49,12 +47,11 @@ final class JWT
         let payload = payload_base64.base64URLDecodedBytes()
         
         let h = try JSONDecoder().decode( JWTHeader.self, from: Data(header) )
-        if h.alg != verifier.alg || h.typ != verifier.typ { throw JWTError.invalidSignerForToken }
         
         let data = header_base64 + [separation] + payload_base64
         let signature = signature_base64.base64URLDecodedBytes()
         
-        guard try verifier.verify(signature: signature, signs: data) else {
+        guard try verifier.verify(signature: signature, header: h, data: data) else {
             throw JWTError.tokenVerificationFailed
         }
 

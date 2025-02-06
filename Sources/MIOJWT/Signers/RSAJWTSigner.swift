@@ -1,25 +1,12 @@
 //
-//  JWTAlgorithm.swift
-//  DualLinkTokenKit
+//  RSAJWTSigner.swift
+//  MIOJWT
 //
-//  Created by Javier Segura Perez on 13/8/24.
+//  Created by Javier Segura Perez on 6/2/25.
 //
-
 import Foundation
 import Crypto
 import _CryptoExtras
-
-
-public protocol JWTSigner
-{
-    var alg:String { get }
-    var typ: String { get }
-    
-    func newHeader( kid:String ) -> JWTHeader
-    
-    func sign( payload:Data ) throws -> [UInt8]
-    func verify( signature: some DataProtocol, signs data: some DataProtocol ) throws -> Bool
-}
 
 enum RSAJWTSignerError : Error
 {
@@ -30,9 +17,9 @@ enum RSAJWTSignerError : Error
     case keySizeTooSmall
 }
 
-class RSAJWTSigner : JWTSigner
+final public class RSAJWTSigner : JWTSigner
 {
-    enum DigestAlgorithm {
+    public enum DigestAlgorithm {
         case sha256
         case sha384
         case sha512
@@ -72,20 +59,27 @@ class RSAJWTSigner : JWTSigner
         }
     }
     
-    // MARK - Protocol methods
-    var alg: String { "RSA256" }
-    var typ: String { "JWT" }
+    // MARK - Protocol methods    
+    public func newHeader( kid: String? = nil ) -> JWTHeader {
+        let alg: String = switch digestAlgorithm {
+        case .sha256: "RS256"
+        case .sha384: "RS384"
+        case .sha512: "RS512"
+        }
+        return JWTHeader(kid: kid, alg: alg, typ: "JWT")
+    }
     
-    func newHeader( kid: String ) -> JWTHeader { return JWTHeader(kid: kid, alg: alg, typ: typ) }
-    
-    func sign( payload:Data ) throws -> [UInt8] {
+    public func sign( payload:Data ) throws -> [UInt8] {
         let hash = try digest( payload )
         let signature = try privateKey.signature(for: hash, padding: padding)
         return [UInt8](signature.rawRepresentation)
     }
     
-    func verify( signature: some DataProtocol, signs data: some DataProtocol ) throws -> Bool
+    public func verify( signature: some DataProtocol, header: JWTHeader, data: some DataProtocol ) throws -> Bool
     {
+        if header.typ != "JWT" { return false }
+        if header.alg != "RS256" && header.alg != "RS384" && header.alg != "RS512" { return false }
+        
         let hash = try self.digest( data )
         let signature = _RSA.Signing.RSASignature(rawRepresentation: signature)
 
