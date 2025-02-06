@@ -6,11 +6,8 @@
 //
 // Copy from original file: https://github.com/vapor/jwt-kit/blob/main/Sources/JWTKit/Utilities/Base64URL.swift
 
-#if !canImport(Darwin)
-    import FoundationEssentials
-#else
-    import Foundation
-#endif
+import Foundation
+
 
 extension DataProtocol {
     package func base64URLDecodedBytes() -> [UInt8] {

@@ -5,11 +5,7 @@
 //  Created by Javier Segura Perez on 6/2/25.
 //
 
-#if !canImport(Darwin)
-    import FoundationEssentials
-#else
-    import Foundation
-#endif
+import Foundation
 
 
 extension UInt8 {
