@@ -10,7 +10,7 @@ import Crypto
 
 public final class JWT
 {
-    static let separation = UInt8.period
+    static let separation = Character(".").asciiValue!
     
     public static func sign( kid: String? = nil, claims: JWTClaims, signer: JWTSigner ) throws -> String {
         let header = signer.newHeader( kid: kid )
@@ -20,15 +20,15 @@ public final class JWT
     public static func sign( header: JWTHeader, claims: JWTClaims, signer: JWTSigner ) throws -> String
     {
         let header_data = try JSONEncoder().encode( header )
-        let header_base64 = header_data.base64URLDecodedBytes()
+        let header_base64 = header_data.base64URLEncodedBytes()
         
         let payload_data = try JSONEncoder().encode( claims )
-        let payload_base64 = payload_data.base64URLDecodedBytes()
+        let payload_base64 = payload_data.base64URLEncodedBytes()
                         
         let input = header_base64 + [JWT.separation] + payload_base64
         
         let signature = try signer.sign(payload: Data(input))
-        let bytes = input + [JWT.separation] + signature.base64URLDecodedBytes()
+        let bytes = input + [JWT.separation] + signature.base64URLEncodedBytes()
         return String(decoding: bytes, as: UTF8.self)
     }
     

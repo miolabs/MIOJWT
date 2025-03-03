@@ -11,7 +11,7 @@ import Foundation
 
 extension DataProtocol {
     package func base64URLDecodedBytes() -> [UInt8] {
-        Data(base64Encoded: Data(copyBytes()).base64URLUnescaped())?.copyBytes() ?? []
+        Data(base64Encoded: Data(copyBytes()).base64URLUnescaped() )?.copyBytes() ?? []
     }
 
     package func base64URLEncodedBytes() -> [UInt8] {
